@@ -27,7 +27,7 @@ productRouter.route("/:prodId")
     })
 
     .delete((req, res, next) => {
-        res.end("Deleting dish: " + req.params.prodId);
+        res.end("Deleting product: " + req.params.prodId);
     });
 
 productRouter.route("/")
