@@ -1,19 +1,24 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require('mongoose');
+
+const Shirts = require('../models/shirts');
 
 const productRouter = express.Router();
 
 productRouter.use(bodyParser.json());
 
 productRouter.route("/:prodId")
-    .all((req, res, next) => {
-        res.statusCode = 200;
-        res.setHeader("Content-Type", "text/plain");
-        next();
-    })
-
     .get((req, res, next) => {
-        res.end("Will send details of the product: " + req.params.prodId + " to you!");
+        Shirts.findById(req.params.prodId)
+            .then((shirt) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(shirt);
+            }, (err) => {
+                next(err);
+            })
+            .catch((err) => next(err));
     })
 
     .post((req, res, next) => {
@@ -22,33 +27,69 @@ productRouter.route("/:prodId")
     })
 
     .put((req, res, next) => {
-        res.write("Updating the product: " + req.params.prodId + "\n");
-        res.end("Will update the product: " + req.body.name + " with details: " + req.body.description);
+        Shirts.findByIdAndUpdate(req.params.prodId, {
+            $set: req.body
+        }, { new: true })
+            .then((shirt) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(shirt);
+            }, (err) => {
+                next(err);
+            })
+            .catch((err) => next(err));
     })
 
     .delete((req, res, next) => {
-        res.end("Deleting product: " + req.params.prodId);
+        Shirts.findByIdAndRemove((req.params.prodId))
+            .then((resp) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(resp);
+            }, (err) => {
+                next(err);
+            })
+            .catch((err) => next(err));
     });
 
 productRouter.route("/")
-    .all((req, res, next) => {
-        res.statusCode = 200;
-        res.setHeader("Content-Type", "text/plain");
-        next();
-    })
     .get((req, res, next) => {
-        res.end("Will send all the products to you!");
+        Shirts.find({})
+            .then((shirts) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(shirts);
+            }, (err) => {
+                next(err);
+            })
+            .catch((err) => next(err));
     })
     .post((req, res, next) => {
-        res.end("Will add the product: " + req.body.name + " with details: " +
-            req.body.description);
+        Shirts.create(req.body)
+            .then((shirt) => {
+                console.log('Shirt Created ', shirt);
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(shirt);
+            }, (err) => {
+                next(err);
+            })
+            .catch((err) => next(err));
     })
     .put((req, res, next) => {
         res.statusCode = 403;
         res.end("PUT operation not supported on /products");
     })
     .delete((req, res, next) => {
-        res.end("Deleting all the products.");
+        Shirts.deleteOne({})
+            .then((resp) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(resp);
+            }, (err) => {
+                next(err);
+            })
+            .catch((err) => next(err));
     });
 
 module.exports = productRouter;

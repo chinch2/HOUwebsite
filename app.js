@@ -1,16 +1,29 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var productRouter = require('./routes/productRouter');
-var promoRouter = require("./routes/promoRouter");
-var leaderRouter = require('./routes/leaderRouter');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const productRouter = require('./routes/productRouter');
+const promoRouter = require("./routes/promoRouter");
+const leaderRouter = require('./routes/leaderRouter');
 
-var app = express();
+const mongoose = require('mongoose');
+
+const Shirts = require('./models/shirts');
+
+const url = 'mongodb://localhost:27017/HOUwebsite';
+const connect = mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false});
+
+connect.then((db) => {
+  console.log('Connected successfully to the server');
+}, (err) => {
+  console.log(err);
+});
+
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
